@@ -58,7 +58,7 @@ void AP_Frsky_Telem::init(const AP_SerialManager &serial_manager,
         if (_frame_string == nullptr) {
             queue_message(MAV_SEVERITY_INFO, AP::fwversion().fw_string);
         } else {
-            char firmware_buf[50];
+            char firmware_buf[MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN+1];
             snprintf(firmware_buf, sizeof(firmware_buf), "%s %s", AP::fwversion().fw_string, _frame_string);
             queue_message(MAV_SEVERITY_INFO, firmware_buf);
         }
@@ -726,7 +726,7 @@ uint32_t AP_Frsky_Telem::calc_home(void)
         }
         // altitude between vehicle and home_loc
         _relative_home_altitude = loc.alt;
-        if (!loc.flags.relative_alt) {
+        if (!loc.relative_alt) {
             // loc.alt has home altitude added, remove it
             _relative_home_altitude -= _ahrs.get_home().alt;
         }
@@ -853,7 +853,7 @@ void AP_Frsky_Telem::calc_nav_alt(void)
     float current_height = 0; // in centimeters above home
     if (_ahrs.get_position(loc)) {
         current_height = loc.alt*0.01f;
-        if (!loc.flags.relative_alt) {
+        if (!loc.relative_alt) {
             // loc.alt has home altitude added, remove it
             current_height -= _ahrs.get_home().alt*0.01f;
         }

@@ -5,11 +5,7 @@
 #include <AP_Param/AP_Param.h>
 #include <AP_RTC/AP_RTC.h>
 
-#if defined(HAL_NEEDS_PARAM_HELPER)
-#include <AP_Param_Helper/AP_Param_Helper.h>
-#endif
-
-#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN || defined(HAL_CHIBIOS_ARCH_FMUV3) || defined(HAL_CHIBIOS_ARCH_FMUV4) || defined(HAL_CHIBIOS_ARCH_FMUV5) || defined(HAL_CHIBIOS_ARCH_MINDPXV2)
+#if CONFIG_HAL_BOARD == HAL_BOARD_PX4 || CONFIG_HAL_BOARD == HAL_BOARD_VRBRAIN || defined(HAL_CHIBIOS_ARCH_FMUV3) || defined(HAL_CHIBIOS_ARCH_FMUV4) || defined(HAL_CHIBIOS_ARCH_FMUV5) || defined(HAL_CHIBIOS_ARCH_MINDPXV2) || defined(HAL_CHIBIOS_ARCH_FMUV4PRO) || defined(HAL_CHIBIOS_ARCH_BRAINV51) || defined(HAL_CHIBIOS_ARCH_BRAINV52) || defined(HAL_CHIBIOS_ARCH_UBRAINV51) || defined(HAL_CHIBIOS_ARCH_COREV10) || defined(HAL_CHIBIOS_ARCH_BRAINV54)
 #define AP_FEATURE_BOARD_DETECT 1
 #else
 #define AP_FEATURE_BOARD_DETECT 0
@@ -118,14 +114,15 @@ public:
 
     // get number of PWM outputs enabled on FMU
     static uint8_t get_pwm_count(void) {
-        return instance?instance->pwm_count.get():4;
+        return instance?instance->pwm_count.get():8;
     }
 
 #if HAL_HAVE_SAFETY_SWITCH
     enum board_safety_button_option {
-        BOARD_SAFETY_OPTION_BUTTON_ACTIVE_SAFETY_OFF=1,
-        BOARD_SAFETY_OPTION_BUTTON_ACTIVE_SAFETY_ON=2,
-        BOARD_SAFETY_OPTION_BUTTON_ACTIVE_ARMED=4,
+        BOARD_SAFETY_OPTION_BUTTON_ACTIVE_SAFETY_OFF= (1 << 0),
+        BOARD_SAFETY_OPTION_BUTTON_ACTIVE_SAFETY_ON=  (1 << 1),
+        BOARD_SAFETY_OPTION_BUTTON_ACTIVE_ARMED=      (1 << 2),
+        BOARD_SAFETY_OPTION_SAFETY_ON_DISARM=         (1 << 3),
     };
 
     // return safety button options. Bits are in enum board_safety_button_option
@@ -143,6 +140,25 @@ public:
 #endif
     }
 
+#if HAL_HAVE_BOARD_VOLTAGE
+    // get minimum board voltage
+    static float get_minimum_board_voltage(void) {
+        return instance?instance->_vbus_min.get():0;
+    }
+#endif
+
+#if HAL_HAVE_SERVO_VOLTAGE
+    // get minimum servo voltage
+    static float get_minimum_servo_voltage(void) {
+        return instance?instance->_vservo_min.get():0;
+    }
+#endif
+
+#if CONFIG_HAL_BOARD == HAL_BOARD_CHIBIOS
+    static uint8_t get_sdcard_slowdown(void) {
+        return instance?instance->_sdcard_slowdown.get():0;
+    }
+#endif
     
 private:
     static AP_BoardConfig *instance;
@@ -200,11 +216,18 @@ private:
     AP_Radio _radio;
 #endif
     
-#if defined(HAL_NEEDS_PARAM_HELPER)
-    // HAL specific parameters
-    AP_Param_Helper param_helper{false};
-#endif
-
     // real-time-clock; private because access is via the singleton
     AP_RTC rtc;
+
+#if HAL_HAVE_BOARD_VOLTAGE
+    AP_Float _vbus_min;
+#endif
+
+#if HAL_HAVE_SERVO_VOLTAGE
+    AP_Float _vservo_min;
+#endif
+
+#if CONFIG_HAL_BOARD == HAL_BOARD_CHIBIOS
+    AP_Int8 _sdcard_slowdown;
+#endif
 };

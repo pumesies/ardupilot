@@ -55,8 +55,8 @@ bool Rover::set_home(const Location& loc, bool lock)
         // log new home position which mission library will pull from ahrs
         if (should_log(MASK_LOG_CMD)) {
             AP_Mission::Mission_Command temp_cmd;
-            if (mission.read_cmd_from_storage(0, temp_cmd)) {
-                DataFlash.Log_Write_Mission_Cmd(mission, temp_cmd);
+            if (mode_auto.mission.read_cmd_from_storage(0, temp_cmd)) {
+                logger.Write_Mission_Cmd(mode_auto.mission, temp_cmd);
             }
         }
     }
@@ -67,14 +67,7 @@ bool Rover::set_home(const Location& loc, bool lock)
     }
 
     // Save Home to EEPROM
-    mission.write_home_to_storage();
-
-    // log ahrs home and ekf origin dataflash
-    ahrs.Log_Write_Home_And_Origin();
-
-    // send new home and ekf origin to GCS
-    gcs().send_home();
-    gcs().send_ekf_origin();
+    mode_auto.mission.write_home_to_storage();
 
     // send text of home position to ground stations
     gcs().send_text(MAV_SEVERITY_INFO, "Set HOME to %.6f %.6f at %.2fm",
@@ -98,8 +91,6 @@ void Rover::update_home()
         if (ahrs.get_position(loc)) {
             if (get_distance(loc, ahrs.get_home()) > DISTANCE_HOME_MAX) {
                 ahrs.set_home(loc);
-                ahrs.Log_Write_Home_And_Origin();
-                gcs().send_home();
             }
         }
     }

@@ -18,6 +18,9 @@
 #define AC_FENCE_ACTION_REPORT_ONLY                 0       // report to GCS that boundary has been breached but take no further action
 #define AC_FENCE_ACTION_RTL_AND_LAND                1       // return to launch and, if that fails, land
 #define AC_FENCE_ACTION_ALWAYS_LAND                 2       // always land
+#define AC_FENCE_ACTION_SMART_RTL                   3       // smartRTL, if that fails, RTL, it that still fails, land
+#define AC_FENCE_ACTION_BRAKE                       4       // brake, if that fails, land
+
 // default boundaries
 #define AC_FENCE_ALT_MAX_DEFAULT                    100.0f  // default max altitude is 100m
 #define AC_FENCE_ALT_MIN_DEFAULT                    -10.0f  // default maximum depth in meters
@@ -59,7 +62,7 @@ public:
     uint8_t check();
 
     // returns true if the destination is within fence (used to reject waypoints outside the fence)
-    bool check_destination_within_fence(const Location_Class& loc);
+    bool check_destination_within_fence(const Location& loc);
 
     /// get_breaches - returns bit mask of the fence types that have been breached
     uint8_t get_breaches() const { return _breached_fences; }
@@ -108,7 +111,7 @@ public:
 
     static const struct AP_Param::GroupInfo var_info[];
 
-    // methods for mavlink SYS_STATUS message (send_extended_status1)
+    // methods for mavlink SYS_STATUS message (send_sys_status)
     bool sys_status_present() const;
     bool sys_status_enabled() const;
     bool sys_status_failed() const;
