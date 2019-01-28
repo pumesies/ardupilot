@@ -54,6 +54,7 @@
 #include <AP_Beacon/AP_Beacon.h>
 
 #include <AP_AdvancedFailsafe/AP_AdvancedFailsafe.h>
+#include <AP_LandingSafety/AP_LandingSafety.h>
 #include <APM_Control/APM_Control.h>
 #include <APM_Control/AP_AutoTune.h>
 #include <GCS_MAVLink/GCS_MAVLink.h>    // MAVLink GCS definitions
@@ -136,6 +137,14 @@ protected:
     enum control_mode afs_mode(void);
 };
 
+class AP_LandingSafety_Plane : public AP_LandingSafety
+{
+    public:
+        AP_LandingSafety_Plane(const AP_AHRS &ahrs, const AP_Landing &landing);
+protected:
+    float get_ground_altitude(void);
+};
+
 /*
   main APM:Plane class
  */
@@ -148,6 +157,7 @@ public:
     friend class QuadPlane;
     friend class AP_Tuning_Plane;
     friend class AP_AdvancedFailsafe_Plane;
+    friend class AP_LandingSafety_Plane;
     friend class AP_Avoidance_Plane;
     friend class GCS_Plane;
 
@@ -631,6 +641,8 @@ private:
     // Outback Challenge Failsafe Support
     AP_AdvancedFailsafe_Plane afs {mission, gps};
 
+    AP_LandingSafety_Plane landingsafety {ahrs, landing};
+
     /*
       meta data to support counting the number of circles in a loiter
     */
@@ -941,6 +953,7 @@ private:
     void update_compass(void);
     void update_alt(void);
     void afs_fs_check(void);
+    void landing_safety_check(void);
     void compass_accumulate(void);
     void compass_cal_update();
     void update_optical_flow(void);

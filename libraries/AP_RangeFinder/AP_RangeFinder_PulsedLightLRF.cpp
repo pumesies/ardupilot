@@ -3,12 +3,10 @@
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
-
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,18 +21,19 @@
 extern const AP_HAL::HAL& hal;
 
 /* LL40LS Registers addresses */
-#define LL40LS_MEASURE_REG    0x00        /* Measure range register */
-#define LL40LS_DISTHIGH_REG    0x0F        /* High byte of distance register, auto increment */
-#define LL40LS_COUNT        0x11
-#define LL40LS_HW_VERSION    0x41
-#define LL40LS_INTERVAL        0x45
-#define LL40LS_SW_VERSION    0x4f
+#define LL40LS_MEASURE_REG        0x00        /* Measure range register */
+#define LL40LS_SIG_COUNT_VAL      0x02
+#define LL40LS_DISTHIGH_REG       0x0F        /* High byte of distance register, auto increment */
+#define LL40LS_COUNT              0x11
+#define LL40LS_HW_VERSION         0x41
+#define LL40LS_INTERVAL           0x45
+#define LL40LS_SW_VERSION         0x4f
 
 // bit values
-#define LL40LS_MSRREG_RESET    0x00        /* reset to power on defaults */
-#define LL40LS_AUTO_INCREMENT    0x80
-#define LL40LS_COUNT_CONTINUOUS    0xff
-#define LL40LS_MSRREG_ACQUIRE    0x04        /* Value to initiate a measurement, varies based on sensor revision */
+#define LL40LS_MSRREG_RESET       0x00        /* reset to power on defaults */
+#define LL40LS_AUTO_INCREMENT     0x80
+#define LL40LS_COUNT_CONTINUOUS   0xff
+#define LL40LS_MSRREG_ACQUIRE     0x04        /* Value to initiate a measurement, varies based on sensor revision */
 
 // i2c address
 #define LL40LS_ADDR   0x62
@@ -90,7 +89,8 @@ void AP_RangeFinder_PulsedLightLRF::timer(void)
         if (_dev->write_register(LL40LS_MEASURE_REG, LL40LS_MSRREG_ACQUIRE)) {
             phase = PHASE_COLLECT;
         }
-        break;
+        if (!v3hp_hardware)
+            break;
 
     case PHASE_COLLECT: {
         be16_t val;
@@ -141,6 +141,13 @@ static const struct settings_table settings_v2[] = {
 };
 
 /*
+  register setup table for V3HP Lidar
+ */
+static const struct settings_table settings_v3hp[] = {
+    { LL40LS_SIG_COUNT_VAL, 0x80 }, // 0x80 = 128 acquisitions
+};
+
+/*
   initialise the sensor to required settings
  */
 bool AP_RangeFinder_PulsedLightLRF::init(void)
@@ -155,6 +162,8 @@ bool AP_RangeFinder_PulsedLightLRF::init(void)
 
     if (rftype == RangeFinder::RangeFinder_TYPE_PLI2CV3) {
         v2_hardware = true;
+    } else if (rftype == RangeFinder::RangeFinder_TYPE_PLI2CV3HP) {
+        v3hp_hardware = true;
     } else {
         // auto-detect v1 vs v2
         if (!(_dev->read_registers(LL40LS_HW_VERSION, &hw_version, 1) &&
@@ -175,6 +184,10 @@ bool AP_RangeFinder_PulsedLightLRF::init(void)
         table = settings_v2;
         num_settings = sizeof(settings_v2) / sizeof(settings_table);
         phase = PHASE_COLLECT;
+    } else if (v3hp_hardware) {
+        table = settings_v3hp;
+        num_settings = sizeof(settings_v3hp) / sizeof(settings_table);
+        phase = PHASE_MEASURE;
     } else {
         table = settings_v1;
         num_settings = sizeof(settings_v1) / sizeof(settings_table);
@@ -189,7 +202,7 @@ bool AP_RangeFinder_PulsedLightLRF::init(void)
         }
     }
 
-    printf("Found LidarLite device=0x%x v2=%d\n", _dev->get_bus_id(), (int)v2_hardware);
+    printf("Found LidarLite device=0x%x v2=%d v3hp=%d\n", _dev->get_bus_id(), (int)v2_hardware, (int)v3hp_hardware);
     
     _dev->get_semaphore()->give();
 
@@ -201,4 +214,3 @@ failed:
     _dev->get_semaphore()->give();
     return false;
 }
-

@@ -97,7 +97,7 @@ sudo pip2 -q install -U $PYTHON_PKGS
 if [ ! -d $OPT/$ARM_ROOT ]; then
     (
         cd $OPT;
-        sudo wget $ARM_TARBALL_URL;
+        sudo wget -e use_proxy=yes -e http_proxy=http://sanren-proxy.meraka.csir.co.za:3128 $ARM_TARBALL_URL;
         sudo tar xjf ${ARM_TARBALL};
         sudo rm ${ARM_TARBALL};
     )

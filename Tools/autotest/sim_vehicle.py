@@ -622,6 +622,8 @@ def start_mavproxy(opts, stuff):
                 cmd.extend(["--out", "10.0.2.2:" + str(port)])
             else:
                 cmd.extend(["--out", "127.0.0.1:" + str(port)])
+		cmd.extend(["--out", "10.0.2.2:" + str(port)])
+		cmd.extend(["--out", "146.64.166.96:" + str(port)])
 
     if opts.tracker:
         cmd.extend(["--load-module", "tracker"])

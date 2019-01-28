@@ -81,7 +81,7 @@ const AP_Param::GroupInfo RangeFinder::var_info[] = {
     // @Param: _MIN_CM
     // @DisplayName: Rangefinder minimum distance
     // @Description: Minimum distance in centimeters that rangefinder can reliably read
-	// @Units: cm
+    // @Units: cm
     // @Increment: 1
     // @User: Standard
     AP_GROUPINFO("_MIN_CM",  5, RangeFinder, state[0].min_distance_cm, 20),
@@ -89,7 +89,7 @@ const AP_Param::GroupInfo RangeFinder::var_info[] = {
     // @Param: _MAX_CM
     // @DisplayName: Rangefinder maximum distance
     // @Description: Maximum distance in centimeters that rangefinder can reliably read
-	// @Units: cm
+    // @Units: cm
     // @Increment: 1
     // @User: Standard
     AP_GROUPINFO("_MAX_CM",  6, RangeFinder, state[0].max_distance_cm, 700),
@@ -212,7 +212,7 @@ const AP_Param::GroupInfo RangeFinder::var_info[] = {
     // @Param: 2_MIN_CM
     // @DisplayName: Rangefinder minimum distance
     // @Description: Minimum distance in centimeters that rangefinder can reliably read
-	// @Units: cm
+    // @Units: cm
     // @Increment: 1
     // @User: Advanced
     AP_GROUPINFO("2_MIN_CM",  17, RangeFinder, state[1].min_distance_cm, 20),
@@ -220,7 +220,7 @@ const AP_Param::GroupInfo RangeFinder::var_info[] = {
     // @Param: 2_MAX_CM
     // @DisplayName: Rangefinder maximum distance
     // @Description: Maximum distance in centimeters that rangefinder can reliably read
-	// @Units: cm
+    // @Units: cm
     // @Increment: 1
     // @User: Advanced
     AP_GROUPINFO("2_MAX_CM",  18, RangeFinder, state[1].max_distance_cm, 700),
@@ -337,7 +337,7 @@ const AP_Param::GroupInfo RangeFinder::var_info[] = {
     // @Param: 3_MIN_CM
     // @DisplayName: Rangefinder minimum distance
     // @Description: Minimum distance in centimeters that rangefinder can reliably read
-	// @Units: cm
+    // @Units: cm
     // @Increment: 1
     // @User: Advanced
     AP_GROUPINFO("3_MIN_CM",  30, RangeFinder, state[2].min_distance_cm, 20),
@@ -345,7 +345,7 @@ const AP_Param::GroupInfo RangeFinder::var_info[] = {
     // @Param: 3_MAX_CM
     // @DisplayName: Rangefinder maximum distance
     // @Description: Maximum distance in centimeters that rangefinder can reliably read
-	// @Units: cm
+    // @Units: cm
     // @Increment: 1
     // @User: Advanced
     AP_GROUPINFO("3_MAX_CM",  31, RangeFinder, state[2].max_distance_cm, 700),
@@ -462,7 +462,7 @@ const AP_Param::GroupInfo RangeFinder::var_info[] = {
     // @Param: 4_MIN_CM
     // @DisplayName: Rangefinder minimum distance
     // @Description: Minimum distance in centimeters that rangefinder can reliably read
-	// @Units: cm
+    // @Units: cm
     // @Increment: 1
     // @User: Advanced
     AP_GROUPINFO("4_MIN_CM",  42, RangeFinder, state[3].min_distance_cm, 20),
@@ -470,7 +470,7 @@ const AP_Param::GroupInfo RangeFinder::var_info[] = {
     // @Param: 4_MAX_CM
     // @DisplayName: Rangefinder maximum distance
     // @Description: Maximum distance in centimeters that rangefinder can reliably read
-	// @Units: cm
+    // @Units: cm
     // @Increment: 1
     // @User: Advanced
     AP_GROUPINFO("4_MAX_CM",  43, RangeFinder, state[3].max_distance_cm, 700),
@@ -643,6 +643,7 @@ void RangeFinder::detect_instance(uint8_t instance, uint8_t& serial_instance)
     switch (_type) {
     case RangeFinder_TYPE_PLI2C:
     case RangeFinder_TYPE_PLI2CV3:
+    case RangeFinder_TYPE_PLI2CV3HP:
         if (!_add_backend(AP_RangeFinder_PulsedLightLRF::detect(1, state[instance], _type))) {
             _add_backend(AP_RangeFinder_PulsedLightLRF::detect(0, state[instance], _type));
         }
